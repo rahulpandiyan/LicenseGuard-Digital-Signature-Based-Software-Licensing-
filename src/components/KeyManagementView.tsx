@@ -276,12 +276,12 @@ export const KeyManagementView: React.FC<KeyManagementViewProps> = ({
                 </pre>
               </div>
 
-              {inspectingKey.private_key_pem && (
+              {(inspectingKey.encrypted_private_key_pem || inspectingKey.private_key_pem) && (
                 <div>
                   <div className="flex items-center justify-between mb-1 font-sans text-xs">
                     <span className="font-semibold text-rose-400 flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5" />
-                      <span>PKCS#8 Private Key PEM (Publisher Secret)</span>
+                      <span>{inspectingKey.encrypted_private_key_pem ? 'Encrypted Vault Storage (PBKDF2 + AES-256-GCM)' : 'PKCS#8 Private Key PEM (Publisher Secret)'}</span>
                     </span>
                     <button
                       onClick={() => setShowPrivateKey(!showPrivateKey)}
@@ -292,12 +292,12 @@ export const KeyManagementView: React.FC<KeyManagementViewProps> = ({
                     </button>
                   </div>
                   {showPrivateKey ? (
-                    <pre className="bg-slate-950 p-3 rounded-lg border border-rose-500/30 text-[10px] text-rose-300 overflow-x-auto">
-                      {inspectingKey.private_key_pem}
+                    <pre className="bg-slate-950 p-3 rounded-lg border border-rose-500/30 text-[10px] text-rose-300 overflow-x-auto whitespace-pre-wrap break-all">
+                      {inspectingKey.encrypted_private_key_pem || inspectingKey.private_key_pem}
                     </pre>
                   ) : (
                     <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-500 font-sans text-center">
-                      Private key hidden for security. Click 'Reveal' to inspect.
+                      Private key encrypted at rest. Click 'Reveal' to inspect encrypted vault payload.
                     </div>
                   )}
                 </div>

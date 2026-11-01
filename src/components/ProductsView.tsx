@@ -39,6 +39,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
         category,
         description,
         default_max_activations: Number(defaultMaxActivations),
+        supported_features: ['core', 'export', 'analytics'],
       });
       setShowAddModal(false);
       setName('');

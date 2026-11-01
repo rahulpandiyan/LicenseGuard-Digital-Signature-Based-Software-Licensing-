@@ -8,10 +8,9 @@ import {
   RotateCcw,
   Sparkles,
   ShieldAlert,
-  ArrowRight,
-  Code2,
   Terminal,
   Bug,
+  FolderGit2,
 } from 'lucide-react';
 import type { LabTestScenario, LicenseRecord, SignedLicenseFile, VerificationResult } from '../types/license.ts';
 
@@ -32,7 +31,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
 
   // Custom Tampering Sandbox State
   const [sandboxLic, setSandboxLic] = useState<LicenseRecord>(licenses[0]);
-  const [tamperField, setTamperField] = useState<'customer_name' | 'expiry_date' | 'max_activations' | 'signature_b64'>('expiry_date');
+  const [tamperField, setTamperField] = useState<'customer_name' | 'expires_at' | 'max_activations' | 'signature_b64'>('expires_at');
   const [tamperValue, setTamperValue] = useState('2099-12-31T23:59:59Z');
   const [sandboxResult, setSandboxResult] = useState<VerificationResult | null>(null);
   const [isSandboxRunning, setIsSandboxRunning] = useState(false);
@@ -40,51 +39,72 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
   const testDefinitions = [
     {
       id: 1,
-      title: 'Test 1: Genuine License Baseline',
-      desc: 'Issue & sign license with private key, then verify with trusted public key.',
-      concept: 'Authenticity & Integrity',
+      title: 'Test 1: Genuine Licence',
+      desc: 'Issue & sign licence with private key, then verify against trusted public key registry.',
+      concept: 'Authenticity Baseline',
       color: 'border-emerald-500/30 text-emerald-400',
     },
     {
       id: 2,
-      title: 'Test 2: License Data Tampering',
-      desc: 'Modify 1 character in expiry date or name; signature becomes invalid.',
-      concept: 'Avalanche Effect & Integrity',
+      title: 'Test 2: Licence Tampering',
+      desc: 'Modify customer name or extend expiry date; signature becomes invalid via avalanche effect.',
+      concept: 'Data Integrity & SHA-256',
       color: 'border-rose-500/30 text-rose-400',
     },
     {
       id: 3,
-      title: 'Test 3: Wrong Public Key Attack',
-      desc: 'Verify license using Rogue Corp public key; mathematical mismatch caught.',
-      concept: 'Key Binding & Trapdoor RSA',
+      title: 'Test 3: Wrong Publisher Key',
+      desc: 'Verify licence using another publisher public key; mathematical mismatch detected.',
+      concept: 'Key Binding Trapdoor',
       color: 'border-amber-500/30 text-amber-400',
     },
     {
       id: 4,
-      title: 'Test 4: Expired License (Valid Sig)',
-      desc: 'Valid signature, but past expiry date. Proves signature != authorization.',
-      concept: 'Temporal Validity vs Signature',
+      title: 'Test 4: Untrusted Publisher Key',
+      desc: 'Attacker generates own keypair and signs fake licence; rejected by Key Registry.',
+      concept: 'Trust Hierarchy & Registry',
       color: 'border-amber-500/30 text-amber-400',
     },
     {
       id: 5,
-      title: 'Test 5: Revoked License (CRL)',
-      desc: 'Valid signature, but blacklisted on server CRL due to key compromise.',
-      concept: 'Revocation & Non-Repudiation',
-      color: 'border-rose-500/30 text-rose-400',
+      title: 'Test 5: Expired Licence',
+      desc: 'Valid signature, past expiry date. Demonstrates signature validity != authorization.',
+      concept: 'Temporal Window Rule',
+      color: 'border-amber-500/30 text-amber-400',
     },
     {
       id: 6,
-      title: 'Test 6: Multi-Device Quota Exceeded',
-      desc: 'Valid signature presented on device beyond maximum allowed seats.',
-      concept: 'Replay Protection & Seat Limits',
-      color: 'border-cyan-500/30 text-cyan-400',
+      title: 'Test 6: Revoked Licence (LRL)',
+      desc: 'Valid signature, blacklisted on Licence Revocation List. Valid signature does not override LRL.',
+      concept: 'Licence Revocation List',
+      color: 'border-rose-500/30 text-rose-400',
     },
     {
       id: 7,
-      title: 'Test 7: Signature Bit Corruption',
-      desc: 'Corrupt the base64 signature string directly; RSA-PSS padding check fails.',
-      concept: 'Cryptanalysis & Padding Verification',
+      title: 'Test 7: Activation Limit',
+      desc: 'Activate 1-seat licence on second device. Enforces seat quotas to defeat replay attacks.',
+      concept: 'Replay Defense & Quotas',
+      color: 'border-cyan-500/30 text-cyan-400',
+    },
+    {
+      id: 8,
+      title: 'Test 8: Signature Corruption',
+      desc: 'Direct bit-flip on base64 signature representation; RSA-PSS salt unmasking collapses.',
+      concept: 'Cryptanalysis & PSS Salt',
+      color: 'border-rose-500/30 text-rose-400',
+    },
+    {
+      id: 9,
+      title: 'Test 9: Modified Executable',
+      desc: 'Modify binary file after signing release manifest; Application Integrity Scanner detects patch.',
+      concept: 'App Binary Integrity',
+      color: 'border-rose-500/30 text-rose-400',
+    },
+    {
+      id: 10,
+      title: 'Test 10: Missing Application File',
+      desc: 'Delete critical security library; Application Integrity Scanner blocks incomplete release.',
+      concept: 'Dependency Completeness',
       color: 'border-rose-500/30 text-rose-400',
     },
   ];
@@ -106,13 +126,12 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
     if (!sandboxLic) return;
     setIsSandboxRunning(true);
     try {
-      // Clone license file
       const cloned: SignedLicenseFile = JSON.parse(JSON.stringify(sandboxLic));
 
       if (tamperField === 'signature_b64') {
         cloned.signature_b64 = 'AAAA' + cloned.signature_b64.substring(4);
-      } else if (tamperField === 'expiry_date') {
-        cloned.license_payload.expiry_date = tamperValue;
+      } else if (tamperField === 'expires_at') {
+        cloned.license_payload.expires_at = tamperValue;
       } else if (tamperField === 'customer_name') {
         cloned.license_payload.customer_name = tamperValue;
       } else if (tamperField === 'max_activations') {
@@ -137,12 +156,12 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
         </div>
         <h2 className="text-xl font-bold text-white tracking-tight">Security Testing & Attack Simulation Lab</h2>
         <p className="text-xs text-slate-400">
-          Execute real cryptographic test vectors, inspect intermediate mathematical state, and evaluate attack resistance
+          Execute 10 real cryptographic test vectors, inspect intermediate mathematical state, and evaluate attack resistance
         </p>
       </div>
 
-      {/* 7-Test Suite Selector Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 10-Test Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {testDefinitions.map((test) => {
           const isSelected = selectedTestId === test.id;
           return (
@@ -167,7 +186,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
               </div>
 
               <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-[10px] text-slate-500 font-mono">1-Click Test</span>
+                <span className="text-[10px] text-slate-500 font-mono">Run Test</span>
                 <Play className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`} />
               </div>
             </button>
@@ -175,7 +194,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
         })}
       </div>
 
-      {/* Test Execution Output Console */}
+      {/* Active Test Scenario Execution Output */}
       {activeScenario && (
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 md:p-6 space-y-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-slate-800">
@@ -189,11 +208,11 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
               <p className="text-xs text-slate-400">{activeScenario.description}</p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-[10px] text-slate-500 block uppercase font-mono">Outcome:</span>
+            <div className="flex items-center gap-4">
+              <div className="text-right font-mono text-xs">
+                <span className="text-[10px] text-slate-500 block uppercase">Actual Verdict:</span>
                 <span
-                  className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                  className={`font-bold px-2.5 py-1 rounded border ${
                     activeScenario.passed
                       ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                       : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
@@ -213,7 +232,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
             </div>
           </div>
 
-          {/* Test Steps Timeline */}
+          {/* Cryptographic Execution Trace */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Terminal className="w-3.5 h-3.5 text-indigo-400" />
@@ -268,7 +287,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
           <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/30 text-xs">
             <div className="flex items-center gap-2 text-indigo-400 font-semibold mb-1">
               <Sparkles className="w-4 h-4" />
-              <span>Academic Takeaway for Assignment Evaluation:</span>
+              <span>Academic Takeaway for Viva Presentation:</span>
             </div>
             <p className="text-slate-300 leading-relaxed font-sans">
               {activeScenario.academic_takeaway}
@@ -277,7 +296,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
         </div>
       )}
 
-      {/* Live Tampering Sandbox */}
+      {/* Interactive Tampering Sandbox */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 md:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -285,7 +304,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
             <div>
               <h3 className="text-base font-bold text-white">Interactive Tampering Sandbox</h3>
               <p className="text-xs text-slate-400">
-                Manually alter signed license attributes and witness the cryptographic signature verification failure in real time
+                Alter structured licence attributes and verify that the RSA-PSS signature verification fails in real time
               </p>
             </div>
           </div>
@@ -293,7 +312,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Select Base License to Attack</label>
+            <label className="block font-medium text-slate-300 mb-1">Target Base Licence</label>
             <select
               value={sandboxLic?.license_payload.license_id || ''}
               onChange={(e) => {
@@ -314,23 +333,23 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
           </div>
 
           <div>
-            <label className="block font-medium text-slate-300 mb-1">Field to Tamper With</label>
+            <label className="block font-medium text-slate-300 mb-1">Attribute to Tamper With</label>
             <select
               value={tamperField}
               onChange={(e) => {
                 const val = e.target.value as any;
                 setTamperField(val);
-                if (val === 'expiry_date') setTamperValue('2099-12-31T23:59:59Z');
+                if (val === 'expires_at') setTamperValue('2099-12-31T23:59:59Z');
                 if (val === 'customer_name') setTamperValue('Mallory (The Attacker)');
                 if (val === 'max_activations') setTamperValue('999');
                 if (val === 'signature_b64') setTamperValue('Corrupt Signature Bytes');
               }}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-indigo-500"
             >
-              <option value="expiry_date">expiry_date (Illegal Time Extension)</option>
-              <option value="customer_name">customer_name (Unauthorized Transfer)</option>
+              <option value="expires_at">expires_at (Illegal Time Extension)</option>
+              <option value="customer_name">customer_name (Identity Tampering)</option>
               <option value="max_activations">max_activations (Seat Inflation)</option>
-              <option value="signature_b64">signature_b64 (Bit-Flip in Signature)</option>
+              <option value="signature_b64">signature_b64 (Direct Bit-Flip Corruption)</option>
             </select>
           </div>
 
@@ -352,7 +371,7 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
           className="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-sm shadow-rose-950"
         >
           <FlaskConical className="w-4 h-4" />
-          <span>{isSandboxRunning ? 'Verifying Tampered Signature...' : 'Inject Tampering & Verify'}</span>
+          <span>{isSandboxRunning ? 'Verifying Tampered Signature...' : 'Inject Tampering & Verify via Engine'}</span>
         </button>
 
         {sandboxResult && (
@@ -376,7 +395,12 @@ export const SecurityLabView: React.FC<SecurityLabViewProps> = ({
 
             <div className="font-mono text-[11px] text-slate-400 bg-slate-900 p-2.5 rounded border border-slate-800 break-all space-y-1">
               <div>Computed SHA-256: <span className="text-slate-200">{sandboxResult.stages.sha256_computed}</span></div>
-              <div>RSA-PSS Math Result: <span className={sandboxResult.stages.signature_valid ? 'text-emerald-400' : 'text-rose-400'}>{sandboxResult.stages.signature_valid ? 'Valid' : 'Invalid / Padding Rejected'}</span></div>
+              <div>
+                RSA-PSS Signature Math:{' '}
+                <span className={sandboxResult.stages.stage3_signature_valid ? 'text-emerald-400' : 'text-rose-400'}>
+                  {sandboxResult.stages.stage3_signature_valid ? 'Valid' : 'Failed / Mismatch'}
+                </span>
+              </div>
             </div>
           </div>
         )}

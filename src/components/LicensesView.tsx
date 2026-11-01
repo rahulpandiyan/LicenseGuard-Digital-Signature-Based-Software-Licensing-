@@ -43,13 +43,13 @@ export const LicensesView: React.FC<LicensesViewProps> = ({
       payload.license_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lic.formatted_license_key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payload.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payload.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payload.product_name.toLowerCase().includes(searchTerm.toLowerCase());
+      payload.customer_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payload.product_id.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!matchesSearch) return false;
 
-    const isRevoked = lic.revocation !== undefined || payload.license_status === 'REVOKED';
-    const isExpired = payload.expiry_date !== 'LIFETIME' && new Date(payload.expiry_date) < now;
+    const isRevoked = lic.revocation !== undefined;
+    const isExpired = payload.expires_at !== 'LIFETIME' && new Date(payload.expires_at) < now;
 
     if (statusFilter === 'ACTIVE') return !isRevoked && !isExpired;
     if (statusFilter === 'EXPIRED') return isExpired && !isRevoked;
@@ -180,8 +180,8 @@ export const LicensesView: React.FC<LicensesViewProps> = ({
               ) : (
                 filteredLicenses.map((lic) => {
                   const payload = lic.license_payload;
-                  const isRevoked = lic.revocation !== undefined || payload.license_status === 'REVOKED';
-                  const isExpired = payload.expiry_date !== 'LIFETIME' && new Date(payload.expiry_date) < now;
+                  const isRevoked = lic.revocation !== undefined;
+                  const isExpired = payload.expires_at !== 'LIFETIME' && new Date(payload.expires_at) < now;
 
                   let statusText = 'ACTIVE';
                   let statusBadge = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
@@ -216,19 +216,19 @@ export const LicensesView: React.FC<LicensesViewProps> = ({
 
                       <td className="py-3 px-4 font-sans">
                         <div className="font-semibold text-white">{payload.customer_name}</div>
-                        <div className="text-slate-400 text-[11px]">{payload.customer_email}</div>
+                        <div className="text-slate-400 text-[11px]">ID: {payload.customer_id}</div>
                       </td>
 
                       <td className="py-3 px-4 font-sans">
-                        <div className="text-slate-200 font-medium">{payload.product_name}</div>
-                        <div className="text-[11px] text-slate-400">{payload.license_type}</div>
+                        <div className="text-slate-200 font-medium">Product: {payload.product_id}</div>
+                        <div className="text-[11px] text-slate-400 uppercase">{payload.license_type}</div>
                       </td>
 
                       <td className="py-3 px-4 text-[11px]">
                         <div className="text-slate-300">
-                          Expires: {payload.expiry_date === 'LIFETIME' ? 'Never (Lifetime)' : payload.expiry_date.slice(0, 10)}
+                          Expires: {payload.expires_at === 'LIFETIME' ? 'Never (Lifetime)' : payload.expires_at.slice(0, 10)}
                         </div>
-                        <div className="text-slate-500">Issued: {payload.issue_date.slice(0, 10)}</div>
+                        <div className="text-slate-500">Issued: {payload.issued_at.slice(0, 10)}</div>
                       </td>
 
                       <td className="py-3 px-4">

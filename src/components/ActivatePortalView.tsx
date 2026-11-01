@@ -13,6 +13,9 @@ import {
   ArrowRight,
   RefreshCw,
   Info,
+  Clock,
+  Layers,
+  Lock,
 } from 'lucide-react';
 import type {
   PublisherKey,
@@ -47,13 +50,12 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
   onActivate,
 }) => {
   const [inputMode, setInputMode] = useState<'KEY' | 'FILE' | 'PRESET'>('KEY');
-  const [licenseKeyInput, setLicenseKeyInput] = useState('LG-9810-A014-TURI-NG01');
+  const [licenseKeyInput, setLicenseKeyInput] = useState('LG-00124-TURI-NG01-PROD');
   const [uploadedFile, setUploadedFile] = useState<SignedLicenseFile | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string>('');
   const [selectedKeyId, setSelectedKeyId] = useState<string>(
     keys.find((k) => k.is_trusted && k.is_active)?.key_id || keys[0]?.key_id || ''
   );
-  const [customPublicKeyPem, setCustomPublicKeyPem] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
@@ -79,6 +81,7 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
     setInputMode('KEY');
     setLicenseKeyInput(lic.formatted_license_key);
     setUploadedFile(lic);
+    if (lic.key_id) setSelectedKeyId(lic.key_id);
   };
 
   const handleRunVerification = async () => {
@@ -89,15 +92,13 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
       if (inputMode === 'FILE' && uploadedFile) {
         result = await onVerify({
           licenseFile: uploadedFile,
-          selectedKeyId: customPublicKeyPem ? undefined : selectedKeyId,
-          publicKeyPem: customPublicKeyPem || undefined,
+          selectedKeyId,
           device: currentDevice,
         });
       } else {
         result = await onVerify({
           licenseKeyOrId: licenseKeyInput,
-          selectedKeyId: customPublicKeyPem ? undefined : selectedKeyId,
-          publicKeyPem: customPublicKeyPem || undefined,
+          selectedKeyId,
           device: currentDevice,
         });
       }
@@ -132,11 +133,11 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
       <div>
         <h2 className="text-xl font-bold text-white tracking-tight">Customer Software Activation Portal</h2>
         <p className="text-xs text-slate-400">
-          Independent verification of RSA-PSS digital signatures, SHA-256 payload integrity, and device seat registration
+          Six-Stage Verification Engine enforcing deterministic RSA-PSS cryptography, Trusted Publisher Key Registry, and Licence Revocation Lists (LRL)
         </p>
       </div>
 
-      {/* Quick Preset Selector for Easy College Assignment Demos */}
+      {/* Quick Preset Selector */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-semibold text-slate-300">Quick Test Presets (Demonstration Scenarios):</span>
@@ -146,17 +147,17 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
           {licenses.slice(0, 4).map((lic) => {
             const isRevoked = lic.revocation !== undefined;
             const isExpired =
-              lic.license_payload.expiry_date !== 'LIFETIME' &&
-              new Date(lic.license_payload.expiry_date) < new Date();
+              lic.license_payload.expires_at !== 'LIFETIME' &&
+              new Date(lic.license_payload.expires_at) < new Date();
 
             let label = 'Genuine Active';
             let badgeStyle = 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20';
 
             if (isRevoked) {
-              label = 'Revoked License';
+              label = 'Revoked Licence (LRL)';
               badgeStyle = 'bg-rose-500/10 text-rose-300 border-rose-500/20';
             } else if (isExpired) {
-              label = 'Expired License';
+              label = 'Expired Licence';
               badgeStyle = 'bg-amber-500/10 text-amber-300 border-amber-500/20';
             }
 
@@ -178,15 +179,14 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Verification Submission Form */}
+        {/* Verification Input Form */}
         <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-5 md:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-white flex items-center gap-2">
               <FileCheck2 className="w-4 h-4 text-indigo-400" />
-              <span>License Input</span>
+              <span>Licence Submission</span>
             </h3>
 
-            {/* Input Mode Selector */}
             <div className="flex items-center p-0.5 bg-slate-950 rounded-lg border border-slate-800 text-[11px]">
               <button
                 onClick={() => setInputMode('KEY')}
@@ -196,7 +196,7 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                License Key
+                Licence Key
               </button>
               <button
                 onClick={() => setInputMode('FILE')}
@@ -214,27 +214,27 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
           {inputMode === 'KEY' ? (
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Product License Key or License ID
+                Product Licence Key or Unique Licence ID
               </label>
               <input
                 type="text"
                 value={licenseKeyInput}
                 onChange={(e) => setLicenseKeyInput(e.target.value)}
-                placeholder="e.g. LG-9810-A014-TURI-NG01 or LIC-2026-9810A"
+                placeholder="e.g. LG-2026-00124 or formatted key"
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
               />
             </div>
           ) : (
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Upload Cryptographic .lic File
+                Upload Cryptographic .lic Licence File
               </label>
               <label className="border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-950/70 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors text-center">
                 <Upload className="w-6 h-6 text-slate-500 mb-2" />
                 <span className="text-xs font-medium text-slate-300">
-                  {uploadedFileName || 'Click or drag license file here'}
+                  {uploadedFileName || 'Click or drag signed .lic file here'}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-0.5">JSON schema with signature</span>
+                <span className="text-[11px] text-slate-500 mt-0.5">Deterministic JSON payload + signature</span>
                 <input
                   type="file"
                   accept=".lic,.json"
@@ -247,7 +247,7 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1">
-              Verification Public Key Authority
+              Trusted Publisher Public Key Registry Lookup
             </label>
             <select
               value={selectedKeyId}
@@ -256,16 +256,19 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
             >
               {keys.map((k) => (
                 <option key={k.key_id} value={k.key_id}>
-                  {k.name} ({k.is_trusted ? 'Trusted Official' : 'Rogue Attacker'})
+                  {k.key_id} · {k.name} ({k.is_trusted ? 'Trusted' : 'Untrusted / Rogue'})
                 </option>
               ))}
             </select>
+            <span className="text-[10px] text-slate-500 mt-1 block">
+              Notice: The client verifies using the trusted key registered for this key ID. Untrusted keys are rejected.
+            </span>
           </div>
 
           <div className="bg-slate-950 rounded-lg p-3 border border-slate-800/80 text-xs">
             <div className="flex items-center gap-2 text-slate-400 mb-1">
               <Laptop className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="font-semibold text-slate-300">Target Device Context:</span>
+              <span className="font-semibold text-slate-300">Target Device Verification Context:</span>
             </div>
             <div className="font-mono text-[11px] text-slate-400 space-y-0.5">
               <div>Node: <span className="text-slate-200">{currentDevice.device_name}</span></div>
@@ -280,15 +283,15 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
             className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-sm shadow-indigo-950"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin' : ''}`} />
-            <span>{isVerifying ? 'Verifying Cryptography & Rules...' : 'Verify Digital Signature & Rules'}</span>
+            <span>{isVerifying ? 'Executing Six-Stage Verification...' : 'Execute Six-Stage Verification Engine'}</span>
           </button>
         </div>
 
-        {/* Verification Stages & Verdict Column */}
+        {/* Verification Engine Output */}
         <div className="lg:col-span-7 space-y-4">
           {verificationResult ? (
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 md:p-6 space-y-5">
-              {/* Verdict Header Banner */}
+              {/* Verdict Header */}
               {(() => {
                 const verdict = verificationResult.verdict;
                 let bannerBg = 'bg-slate-950 border-slate-800 text-slate-200';
@@ -300,9 +303,12 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
                 } else if (verdict === 'INVALID SIGNATURE') {
                   bannerBg = 'bg-rose-500/10 border-rose-500/30 text-rose-200';
                   icon = <XCircle className="w-6 h-6 text-rose-400" />;
-                } else if (verdict === 'LICENCE EXPIRED') {
+                } else if (verdict === 'UNKNOWN OR UNTRUSTED PUBLISHER') {
                   bannerBg = 'bg-amber-500/10 border-amber-500/30 text-amber-200';
-                  icon = <AlertTriangle className="w-6 h-6 text-amber-400" />;
+                  icon = <Lock className="w-6 h-6 text-amber-400" />;
+                } else if (verdict === 'LICENCE EXPIRED' || verdict === 'LICENCE NOT YET VALID') {
+                  bannerBg = 'bg-amber-500/10 border-amber-500/30 text-amber-200';
+                  icon = <Clock className="w-6 h-6 text-amber-400" />;
                 } else if (verdict === 'LICENCE REVOKED') {
                   bannerBg = 'bg-rose-500/10 border-rose-500/30 text-rose-200';
                   icon = <XCircle className="w-6 h-6 text-rose-400" />;
@@ -315,7 +321,7 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
                   <div className={`p-4 rounded-xl border flex items-start gap-3.5 ${bannerBg}`}>
                     <div className="shrink-0 mt-0.5">{icon}</div>
                     <div className="flex-1">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <span className="font-mono text-xs uppercase tracking-wider font-bold">
                           Verification Verdict:
                         </span>
@@ -331,102 +337,138 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
                 );
               })()}
 
-              {/* 5-Stage Step Breakdown */}
+              {/* The Six Verification Stages */}
               <div className="space-y-2.5">
-                <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Sequential Verification Stages
+                <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>The Six-Stage Verification Engine Execution</span>
                 </h4>
 
-                {/* Stage 1: Hash Calculation */}
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs font-mono space-y-1">
+                {/* Stage 1: Canonical Serialization */}
+                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-semibold font-sans">
-                      Stage 1: SHA-256 Digest Recomputation
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 1: Canonical JSON Serialization & Schema
                     </span>
-                    <span className="text-emerald-400 text-[11px]">Computed</span>
+                    <span
+                      className={`text-[11px] font-mono font-semibold ${
+                        verificationResult.stages.stage1_canonical_valid ? 'text-emerald-400' : 'text-rose-400'
+                      }`}
+                    >
+                      {verificationResult.stages.stage1_canonical_valid ? 'CANONICAL VALID ✅' : 'SCHEMA FAILED ❌'}
+                    </span>
                   </div>
-                  <div className="text-[11px] text-slate-300 break-all">
+                  <div className="text-[11px] text-slate-400 font-mono truncate">
+                    Schema v1 · Sorted alphabetical keys · UTF-8 encoding
+                  </div>
+                </div>
+
+                {/* Stage 2: SHA-256 Hashing */}
+                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 2: SHA-256 Message Digest Computation
+                    </span>
+                    <span className="text-emerald-400 font-mono text-[11px]">HASHED ✅</span>
+                  </div>
+                  <div className="text-[11px] text-slate-300 font-mono break-all">
                     {verificationResult.stages.sha256_computed}
                   </div>
                 </div>
 
-                {/* Stage 2: RSA-PSS Signature Verification */}
+                {/* Stage 3: RSA-PSS Digital Signature */}
                 <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-semibold font-sans">
-                      Stage 2: RSA-PSS Signature Verification
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 3: RSA-PSS Signature & Key Registry Check
                     </span>
                     <span
                       className={`text-[11px] font-mono font-semibold ${
-                        verificationResult.stages.signature_valid
+                        verificationResult.stages.stage3_signature_valid
                           ? 'text-emerald-400'
+                          : !verificationResult.stages.key_trusted
+                          ? 'text-amber-400'
                           : 'text-rose-400'
                       }`}
                     >
-                      {verificationResult.stages.signature_valid ? 'VALID SIGNATURE ✅' : 'INVALID SIGNATURE ❌'}
+                      {verificationResult.stages.stage3_signature_valid
+                        ? 'SIGNATURE VALID ✅'
+                        : !verificationResult.stages.key_trusted
+                        ? 'UNTRUSTED KEY ❌'
+                        : 'SIGNATURE INVALID ❌'}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono">
-                    Algorithm: RSA-PSS with SHA-256 (MGF1 Salt: MAX) · Key: {verificationResult.stages.publisher_name}
+                    Authority: {verificationResult.stages.publisher_name} ({verificationResult.stages.publisher_id}) · Key:{' '}
+                    {verificationResult.stages.key_fingerprint.slice(0, 20)}...
                   </div>
                 </div>
 
-                {/* Stage 3: Expiry Check */}
+                {/* Stage 4: Licence Validity & Temporal Window */}
                 <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-semibold font-sans">
-                      Stage 3: Business Rule – Expiry Validation
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 4: Licence Validity & Expiry Timeline
                     </span>
                     <span
                       className={`text-[11px] font-mono font-semibold ${
-                        verificationResult.stages.expiry_valid ? 'text-emerald-400' : 'text-amber-400'
+                        verificationResult.stages.stage4_validity_passed ? 'text-emerald-400' : 'text-amber-400'
                       }`}
                     >
-                      {verificationResult.stages.expiry_valid ? 'TIMELINE VALID ✅' : 'EXPIRED ❌'}
+                      {verificationResult.stages.stage4_validity_passed ? 'TIMELINE VALID ✅' : 'EXPIRED / INVALID ❌'}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono">
-                    Expiry Date: {verificationResult.license_payload?.expiry_date || 'N/A'}
+                    Validity Window: [{verificationResult.stages.not_before?.slice(0, 10)} $\rightarrow${' '}
+                    {verificationResult.stages.expires_at === 'LIFETIME'
+                      ? 'LIFETIME'
+                      : verificationResult.stages.expires_at?.slice(0, 10)}]
                   </div>
                 </div>
 
-                {/* Stage 4: CRL Check */}
+                {/* Stage 5: Licence Revocation List (LRL) */}
                 <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-semibold font-sans">
-                      Stage 4: Business Rule – Revocation List (CRL)
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 5: Licence Revocation List (LRL) Check
                     </span>
                     <span
                       className={`text-[11px] font-mono font-semibold ${
-                        verificationResult.stages.crl_check_passed ? 'text-emerald-400' : 'text-rose-400'
+                        verificationResult.stages.stage5_lrl_passed ? 'text-emerald-400' : 'text-rose-400'
                       }`}
                     >
-                      {verificationResult.stages.crl_check_passed ? 'NOT REVOKED ✅' : 'REVOKED ON CRL ❌'}
+                      {verificationResult.stages.stage5_lrl_passed ? 'NOT REVOKED ✅' : 'REVOKED ON LRL ❌'}
                     </span>
                   </div>
+                  {verificationResult.stages.revocation_reason && (
+                    <div className="text-[11px] text-rose-400 font-sans">
+                      LRL Reason: {verificationResult.stages.revocation_reason}
+                    </div>
+                  )}
                 </div>
 
-                {/* Stage 5: Seat Quota */}
+                {/* Stage 6: Device Activation Quota */}
                 <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-semibold font-sans">
-                      Stage 5: Business Rule – Activation Device Quota
+                    <span className="font-sans font-semibold text-slate-300">
+                      Stage 6: Device Activation Quota Verification
                     </span>
                     <span
                       className={`text-[11px] font-mono font-semibold ${
-                        verificationResult.stages.activation_limit_passed ? 'text-emerald-400' : 'text-cyan-400'
+                        verificationResult.stages.stage6_quota_passed ? 'text-emerald-400' : 'text-cyan-400'
                       }`}
                     >
-                      {verificationResult.stages.activation_limit_passed ? 'QUOTA AVAILABLE ✅' : 'LIMIT EXCEEDED ❌'}
+                      {verificationResult.stages.stage6_quota_passed ? 'QUOTA AVAILABLE ✅' : 'QUOTA EXCEEDED ❌'}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono">
-                    Active Registrations: {verificationResult.stages.current_activations} / {verificationResult.stages.max_activations}
+                    Registered Seats: {verificationResult.stages.current_activations} /{' '}
+                    {verificationResult.stages.max_activations}
                   </div>
                 </div>
               </div>
 
-              {/* Activation Trigger Button */}
+              {/* Activation Trigger */}
               {verificationResult.success && (
                 <div className="pt-2">
                   <button
@@ -437,12 +479,12 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
                     <CheckCircle2 className="w-4 h-4" />
                     <span>
                       {isActivating
-                        ? 'Registering Device Activation...'
+                        ? 'Registering Device Activation Token...'
                         : `Activate Software on ${currentDevice.device_name}`}
                     </span>
                   </button>
                   {activationMessage && (
-                    <p className="mt-2 text-xs text-center font-medium text-emerald-400">
+                    <p className="mt-2 text-xs text-center font-medium text-emerald-400 font-sans">
                       {activationMessage}
                     </p>
                   )}
@@ -452,9 +494,9 @@ export const ActivatePortalView: React.FC<ActivatePortalViewProps> = ({
           ) : (
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center text-slate-500 flex flex-col items-center justify-center min-h-[360px]">
               <ShieldCheck className="w-12 h-12 text-slate-700 mb-3" />
-              <h4 className="text-sm font-semibold text-slate-400">Awaiting License Submission</h4>
+              <h4 className="text-sm font-semibold text-slate-400">Awaiting Licence Submission</h4>
               <p className="text-xs text-slate-500 max-w-sm mt-1">
-                Enter a product key or upload a signed .lic file and press "Verify Digital Signature" to run cryptographic validation.
+                Enter a product key or upload a signed .lic file and press "Execute Six-Stage Verification Engine" to run cryptographic validation.
               </p>
             </div>
           )}

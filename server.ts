@@ -13,22 +13,30 @@ import {
   getProductById,
   addProduct,
   updateProduct,
+  getAllCustomers,
+  addCustomer,
+  getAllPublishers,
   getAllKeys,
   getKeyById,
-  addPublisherKey,
+  registerPublisherKey,
   getAllLicenses,
   getLicenseByIdOrKey,
   issueLicense,
+  getRevocationList,
   revokeLicense,
   getAllActivations,
   deactivateDevice,
   getVerificationHistory,
   SIMULATED_DEVICES,
+  getAppManifests,
+  getInstalledAppFiles,
+  updateInstalledAppFiles,
 } from './src/services/db.ts';
 import {
   verifyLicense,
   activateLicenseOnDevice,
   executeLabTest,
+  scanApplicationIntegrity,
 } from './src/services/verification.ts';
 import { canonicalizePayload, computeSha256 } from './src/services/crypto.ts';
 
@@ -41,10 +49,10 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Initialize SQLite/JSON persistence and seed keys
+// Initialize persistent database
 initDatabase();
 
-// ---- REST API Routes ----
+// ---- REST API Endpoints ----
 
 // 1. Dashboard Stats
 app.get('/api/stats', (_req, res) => {
@@ -60,8 +68,7 @@ app.get('/api/stats', (_req, res) => {
 // 2. Products
 app.get('/api/products', (_req, res) => {
   try {
-    const products = getAllProducts();
-    res.json(products);
+    res.json(getAllProducts());
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
@@ -70,7 +77,7 @@ app.get('/api/products', (_req, res) => {
 
 app.post('/api/products', (req, res) => {
   try {
-    const { name, code, version, category, description, default_max_activations } = req.body;
+    const { name, code, version, category, description, default_max_activations, supported_features } = req.body;
     if (!name || !code) {
       return res.status(400).json({ error: 'Name and code are required' });
     }
@@ -81,6 +88,7 @@ app.post('/api/products', (req, res) => {
       category: category || 'General Software',
       description: description || '',
       default_max_activations: parseInt(default_max_activations, 10) || 1,
+      supported_features: supported_features || ['core'],
     });
     res.status(201).json(product);
   } catch (err: unknown) {
@@ -102,13 +110,44 @@ app.put('/api/products/:id', (req, res) => {
   }
 });
 
-// 3. Publisher Keys
+// 3. Customers
+app.get('/api/customers', (_req, res) => {
+  try {
+    res.json(getAllCustomers());
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.post('/api/customers', (req, res) => {
+  try {
+    const { name, email, organization } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+    const cust = addCustomer({ name, email, organization: organization || 'Personal' });
+    res.status(201).json(cust);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+// 4. Publishers & Trusted Key Registry
+app.get('/api/publishers', (_req, res) => {
+  try {
+    res.json(getAllPublishers());
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
 app.get('/api/keys', (req, res) => {
   try {
-    // Only return private keys if specifically requesting management view
     const includePrivate = req.query.admin === 'true';
-    const keys = getAllKeys(includePrivate);
-    res.json(keys);
+    res.json(getAllKeys(includePrivate));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
@@ -117,12 +156,17 @@ app.get('/api/keys', (req, res) => {
 
 app.post('/api/keys/generate', (req, res) => {
   try {
-    const { name, key_size, is_trusted } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Key name is required' });
+    const { publisher_id, name, key_size, is_trusted } = req.body;
+    if (!publisher_id || !name) {
+      return res.status(400).json({ error: 'Publisher ID and key name are required' });
     }
-    const size = parseInt(key_size, 10) === 4096 ? 4096 : 2048;
-    const newKey = addPublisherKey(name, size, is_trusted !== false);
+    const size = parseInt(key_size, 10) === 4096 ? 4096 : parseInt(key_size, 10) === 3072 ? 3072 : 2048;
+    const newKey = registerPublisherKey({
+      publisher_id,
+      name,
+      key_size: size,
+      is_trusted: is_trusted !== false,
+    });
     res.status(201).json(newKey);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -145,11 +189,10 @@ app.get('/api/keys/:id/public', (req, res) => {
   }
 });
 
-// 4. Licenses
+// 5. Licenses
 app.get('/api/licenses', (_req, res) => {
   try {
-    const licenses = getAllLicenses();
-    res.json(licenses);
+    res.json(getAllLicenses());
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
@@ -171,17 +214,18 @@ app.get('/api/licenses/:id', (req, res) => {
 
 app.post('/api/licenses/issue', (req, res) => {
   try {
-    const { customer_name, customer_email, product_id, license_type, max_activations, key_id, custom_expiry } = req.body;
-    if (!customer_name || !customer_email || !product_id || !license_type) {
-      return res.status(400).json({ error: 'Missing required license fields' });
+    const { customer_id, product_id, publisher_id, key_id, license_type, max_activations, features, custom_expiry } = req.body;
+    if (!customer_id || !product_id || !key_id) {
+      return res.status(400).json({ error: 'customer_id, product_id, and key_id are required' });
     }
     const record = issueLicense({
-      customer_name,
-      customer_email,
+      customer_id,
       product_id,
-      license_type,
-      max_activations: parseInt(max_activations, 10) || 1,
+      publisher_id: publisher_id || 'PUB-001',
       key_id,
+      license_type: license_type || 'yearly',
+      max_activations: parseInt(max_activations, 10) || 1,
+      features,
       custom_expiry,
     });
     res.status(201).json(record);
@@ -191,10 +235,20 @@ app.post('/api/licenses/issue', (req, res) => {
   }
 });
 
+// 6. Licence Revocation List (LRL)
+app.get('/api/lrl', (_req, res) => {
+  try {
+    res.json(getRevocationList());
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
 app.post('/api/licenses/:id/revoke', (req, res) => {
   try {
-    const { reason } = req.body;
-    const revoked = revokeLicense(req.params.id, reason || 'Revoked by administrator');
+    const { reason, revoked_by } = req.body;
+    const revoked = revokeLicense(req.params.id, reason || 'Administrative revocation on LRL', revoked_by);
     res.json(revoked);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -202,15 +256,15 @@ app.post('/api/licenses/:id/revoke', (req, res) => {
   }
 });
 
-// 5. Verification & Activation
+// 7. Six-Stage Verification & Activation
 app.post('/api/licenses/verify', (req, res) => {
   try {
-    const { licenseFile, licenseKeyOrId, publicKeyPem, selectedKeyId, device } = req.body;
+    const { licenseFile, licenseKeyOrId, selectedKeyId, publicKeyPem, device } = req.body;
     const result = verifyLicense({
       licenseFile,
       licenseKeyOrId,
-      publicKeyPem,
       selectedKeyId,
+      publicKeyPem,
       device,
     });
     res.json(result);
@@ -235,15 +289,14 @@ app.post('/api/licenses/activate', (req, res) => {
   }
 });
 
-// 6. Devices and Activations
+// 8. Devices and Activations
 app.get('/api/devices', (_req, res) => {
   res.json(SIMULATED_DEVICES);
 });
 
 app.get('/api/activations', (_req, res) => {
   try {
-    const activations = getAllActivations();
-    res.json(activations);
+    res.json(getAllActivations());
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
@@ -256,71 +309,92 @@ app.post('/api/activations/:id/deactivate', (req, res) => {
     if (!ok) {
       return res.status(404).json({ error: 'Activation record not found' });
     }
-    res.json({ success: true, message: 'Device deactivated successfully' });
+    res.json({ success: true, message: 'Device seat deactivated successfully' });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
   }
 });
 
-// 7. Audit Verification History
+// 9. Application Integrity Scanner
+app.get('/api/manifests', (_req, res) => {
+  try {
+    res.json(getAppManifests());
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.get('/api/integrity/scan', (req, res) => {
+  try {
+    const appId = (req.query.appId as string) || 'PROD-001';
+    const scan = scanApplicationIntegrity(appId);
+    res.json(scan);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.post('/api/integrity/tamper-file', (req, res) => {
+  try {
+    const { appId, filePath, action } = req.body;
+    const targetApp = appId || 'PROD-001';
+    const files = getInstalledAppFiles(targetApp);
+
+    if (action === 'tamper') {
+      const updated = files.map(f => {
+        if (f.relative_path === filePath) {
+          return {
+            ...f,
+            sha256: computeSha256('TAMPERED_CRACKED_PATCHED_BINARY_CODE_2026'),
+          };
+        }
+        return f;
+      });
+      updateInstalledAppFiles(targetApp, updated);
+      res.json({ success: true, message: `Injected tampering into ${filePath}` });
+    } else if (action === 'delete') {
+      const updated = files.filter(f => f.relative_path !== filePath);
+      updateInstalledAppFiles(targetApp, updated);
+      res.json({ success: true, message: `Removed file ${filePath}` });
+    } else if (action === 'restore') {
+      // Re-read from manifest
+      const manifests = getAppManifests();
+      const manifest = manifests.find(m => m.app_id === targetApp) || manifests[0];
+      if (manifest) {
+        updateInstalledAppFiles(targetApp, JSON.parse(JSON.stringify(manifest.files)));
+      }
+      res.json({ success: true, message: `Restored all files for ${targetApp}` });
+    } else {
+      res.status(400).json({ error: 'Unknown action' });
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg });
+  }
+});
+
+// 10. Verification Audit Logs
 app.get('/api/history', (_req, res) => {
   try {
-    const history = getVerificationHistory();
-    res.json(history);
+    res.json(getVerificationHistory());
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });
   }
 });
 
-// 8. Security Testing Lab Runner
+// 11. Security Testing Lab Runner (10 Scenarios)
 app.post('/api/lab/test', (req, res) => {
   try {
     const testId = parseInt(req.body.testId, 10);
-    if (!testId || testId < 1 || testId > 7) {
-      return res.status(400).json({ error: 'Invalid test ID. Must be between 1 and 7.' });
+    if (!testId || testId < 1 || testId > 10) {
+      return res.status(400).json({ error: 'Invalid test ID. Must be between 1 and 10.' });
     }
     const scenario = executeLabTest(testId);
     res.json(scenario);
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    res.status(500).json({ error: msg });
-  }
-});
-
-// 9. Tamper Simulation Tool
-app.post('/api/tools/tamper', (req, res) => {
-  try {
-    const { licenseFile, tamperField, tamperValue } = req.body;
-    if (!licenseFile || !licenseFile.license_payload) {
-      return res.status(400).json({ error: 'Valid licenseFile is required' });
-    }
-
-    const tamperedPayload = { ...licenseFile.license_payload };
-
-    if (tamperField === 'expiry_date') {
-      tamperedPayload.expiry_date = tamperValue || '2099-12-31T23:59:59Z';
-    } else if (tamperField === 'customer_name') {
-      tamperedPayload.customer_name = tamperValue || `${tamperedPayload.customer_name} (Hacked)`;
-    } else if (tamperField === 'max_activations') {
-      tamperedPayload.max_activations = parseInt(tamperValue, 10) || 999;
-    } else if (tamperField === 'product_name') {
-      tamperedPayload.product_name = tamperValue || 'Enterprise Unlimited Crack Edition';
-    }
-
-    const canonical = canonicalizePayload(tamperedPayload);
-    const newDigest = computeSha256(canonical);
-
-    // Keep the old signature intentionally to demonstrate tampering
-    const tamperedFile = {
-      ...licenseFile,
-      license_payload: tamperedPayload,
-      tampered_sha256: newDigest,
-      original_sha256: licenseFile.sha256_digest,
-    };
-
-    res.json(tamperedFile);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ error: msg });

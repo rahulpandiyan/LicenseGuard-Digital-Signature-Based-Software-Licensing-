@@ -1,132 +1,167 @@
 # LicenseGuard – Digital Signature-Based Software Licensing and Activation System
 
-**VTU BCS703 Cryptography and Network Security Assignment**  
-**Primary Academic Concept:** DIGITAL SIGNATURE (RSA-PSS with SHA-256)
+**Course:** VTU BCS703 Cryptography and Network Security  
+**Primary Academic Concept:** DIGITAL SIGNATURE (RSA-PSS with SHA-256)  
+**System Architecture:** Six-Stage Verification Engine & Application Integrity Scanner
 
 ---
 
-## 1. Abstract
-LicenseGuard is an enterprise-grade digital signature-based software licensing, tamper detection, and multi-device activation platform. Inspired by the licensing architectures used by Microsoft Windows, Adobe, and JetBrains, LicenseGuard demonstrates the fundamental security properties of asymmetric public-key cryptography—namely **authenticity**, **integrity**, and **non-repudiation**—while rigorously highlighting the distinction between cryptographic validity and operational business authorization rules.
+## 1. Project Overview
+
+**LicenseGuard** is an application-based Cryptography and Network Security system simulating commercial software protection and activation workflows used by Microsoft Windows, Adobe Creative Cloud, and JetBrains.
+
+The core academic objective is demonstrating **digital signatures**:
+- **Authenticity**: Confirming the license genuinely originates from an authorized software publisher.
+- **Integrity**: Mathematically proving that no field in the license file has been altered or tampered with.
+- **Non-Repudiation**: Preventing the publisher from denying the issuance of a certified license.
+- **Separation of Concerns**: Strict boundary separating cryptographic signature verification from business authorization (expiration, revocation, device activation quotas).
 
 ---
 
-## 2. Introduction
-In standard software distribution, publishers must ensure that customer licenses cannot be forged, transferred to unauthorized entities, or modified (such as extending an expiration date or altering licensed feature flags). Symmetric cryptography cannot solve this problem because distributing the secret key to client software allows malicious users to reverse-engineer the key and generate counterfeit licenses. Asymmetric cryptography (RSA public/private key pairs) solves this by keeping the private key confidential on publisher servers while distributing the public key to software clients.
+## 2. Six-Stage Verification Engine
 
----
-
-## 3. Problem Statement
-Commercial software protection faces three primary threat vectors:
-1. **License Data Tampering**: An adversary alters a genuine license file (e.g. extending expiry from 2026 to 2099 or changing the licensee name).
-2. **Key Counterfeiting**: An attacker generates their own keypair and signs a license, attempting to deceive the verifier.
-3. **Replay & Uncontrolled Duplication**: A legitimate license is copied onto dozens of unauthorized machines.
-
----
-
-## 4. Objectives
-- Implement authentic RSA-2048 public/private key generation.
-- Formulate deterministic canonical JSON payloads and compute SHA-256 digests.
-- Generate digital signatures using RSA-PSS with SHA-256 (MGF1 and salt).
-- Verify digital signatures using the publisher's trusted public key without hardcoded shortcuts.
-- Separate cryptographic signature verification from business rules (expiry, CRL revocation, device limits).
-- Provide an interactive 7-test Security Testing Lab demonstrating real attack scenarios.
-
----
-
-## 5. Existing System vs. Proposed System
-
-| Feature | Legacy File Verification System | LicenseGuard Proposed System |
-| :--- | :--- | :--- |
-| **Domain** | SpongeBob generic file integrity checker | Commercial software licensing & activation platform |
-| **Key Management** | Transient keys in memory | Persistent publisher key infrastructure & rotation |
-| **Tampering Defense** | Basic hash comparison | RSA-PSS with SHA-256 over canonical JSON payloads |
-| **Business Logic** | None (only verifies file hashes) | Expiry dates, CRL revocation, multi-device seat quotas |
-| **Simulation** | Cartoon roleplay scenario | Real-world workstation & cloud server hardware profiling |
-| **Lab Testing** | 3 basic attack steps | 7 comprehensive security attack test vectors |
-
----
-
-## 6. System Architecture
+LicenseGuard enforces a rigorous six-stage verification pipeline:
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                   Publisher / Administrative Console                     │
-│  - Product Catalog (IDs, versions, default seats)                        │
-│  - RSA Keypair Management (2048/4096-bit, PEM export, rotation)         │
-│  - Structured License Issuer (Canonical JSON -> SHA-256 -> RSA-PSS)      │
-│  - Certificate Revocation List (CRL) & Seat Management                   │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │ Issues .lic file & Public Key
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                      Customer Activation Portal                          │
-│  - Input: Formatted Product Key (LG-XXXX) or .lic file upload            │
-│  - Authority: Select or upload trusted Publisher Public Key (.pem)       │
-│  - Hardware Node: Simulated device profiling (OS, GUID, hardware hash)   │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│                   Sequential 5-Stage Verification Engine                 │
-│  Stage 1: Deterministic Canonical JSON formatting                       │
-│  Stage 2: SHA-256 Digest Recomputation                                  │
-│  Stage 3: RSA-PSS Mathematical Signature Verification (Integrity/Auth)   │
-│  Stage 4: Temporal Expiry Check (Current time vs License Expiry)         │
-│  Stage 5: Certificate Revocation List (CRL) Check                        │
-│  Stage 6: Multi-Device Quota & Seat Allocation Check                     │
-└──────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                   STAGE 1: Deterministic Canonical JSON Serialization            │
+│       RFC 8785: Keys recursively sorted, whitespace stripped, UTF-8 encoded      │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                   STAGE 2: SHA-256 Cryptographic Hash Computation                 │
+│         Generates 256-bit unique cryptographic digest of canonical payload        │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│             STAGE 3: RSA-PSS Digital Signature Verification                      │
+│   • Look up key_id in Trusted Publisher Key Registry                             │
+│   • Reject untrusted or rogue publisher keys                                      │
+│   • Verify RSA-2048/3072/4096-bit signature with SHA-256 & MGF1 salt            │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         │  Cryptographic Proof Verified
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│             STAGE 4: Temporal Window & Expiry Verification                       │
+│   • Validates current time >= not_before (activation inception window)           │
+│   • Validates current time <= expires_at (or LIFETIME exemption)                 │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│             STAGE 5: Licence Revocation List (LRL) Check                         │
+│   • Queries publisher's authoritative LRL for revoked license IDs                │
+└────────────────────────────────────────┬─────────────────────────────────────────┘
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│             STAGE 6: Hardware Node & Activation Quota Enforcement                │
+│   • Generates SHA-256 fingerprint from hardware profile (UUID + MAC + CPU)       │
+│   • Enforces active device seat limit (current_activations < max_activations)    │
+└──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 7. Cryptographic Algorithms
+## 3. Trusted Publisher Key Management
 
-### A. SHA-256 (Secure Hash Algorithm 256-bit)
-SHA-256 is a cryptographic hash function that takes an arbitrary-length message and computes a unique 256-bit (32-byte) message digest. It exhibits the **Avalanche Effect**: altering even a single bit of input changes more than 50% of the output hash bits.
-
-### B. RSA-PSS (Probabilistic Signature Scheme)
-Standardized in PKCS#1 v2.1 and RFC 8017. Compared to legacy deterministic PKCS#1 v1.5, RSA-PSS introduces a randomized salt value and Mask Generation Function (MGF1).
-- **Signing**:
-  $$H = \text{SHA-256}(\text{Canonicalize}(\text{Payload}))$$
-  $$EM = \text{PSS-Encode}(H, \text{salt})$$
-  $$S = EM^d \pmod n$$
-- **Verification**:
-  $$EM' = S^e \pmod n$$
-  $$\text{Valid} = \text{PSS-Verify}(EM', H)$$
+In real-world security, clients do not blindly trust arbitrary public keys. LicenseGuard includes an authoritative **Trusted Publisher Key Registry**:
+- Every publisher has a unique identifier (`publisher_id`, e.g., `PUB-001`).
+- Every public key has a unique identifier (`key_id`, e.g., `KEY-PUB01-2026`) and SHA-256 fingerprint.
+- The verifier validates the publisher's trusted status before performing cryptographic checks.
+- Rogue keys generated by adversaries are recognized as **UNTRUSTED_PUBLISHER_KEY**, preventing forgery attacks even if the mathematical signature is internally self-consistent.
+- Key rotation is supported: previous public keys remain in the registry so legacy licenses remain verifiable.
+- Private keys are encrypted at rest using **PBKDF2 (100,000 iterations) + AES-256-GCM**.
 
 ---
 
-## 8. Security Testing Lab: 7 Test Scenarios
+## 4. Standardized Versioned License Format
 
-1. **Test 1: Genuine License**: Freshly signed license verified against publisher public key $\rightarrow$ **VALID LICENCE** (Pass).
-2. **Test 2: License Tampering**: Attacker modifies customer name or extends expiry date $\rightarrow$ SHA-256 digest mismatches $\rightarrow$ **INVALID SIGNATURE** (Tampering caught).
-3. **Test 3: Wrong Public Key**: Attempting verification using Rogue Corp's public key $\rightarrow$ RSA modulus mismatch $\rightarrow$ **INVALID SIGNATURE** (Rejected).
-4. **Test 4: Expired License**: Valid signature, but expiry timestamp is in the past $\rightarrow$ Signature Valid, but activation denied: **LICENCE EXPIRED** (Demonstrates signature != authorization).
-5. **Test 5: Revoked License**: Valid signature, but license listed on publisher CRL $\rightarrow$ **LICENCE REVOKED**.
-6. **Test 6: Activation Limit**: License with 1 seat attempted on a 2nd device $\rightarrow$ **ACTIVATION LIMIT EXCEEDED**.
-7. **Test 7: Signature Bit Corruption**: Corrupted base64 signature string $\rightarrow$ PSS salt verification fails $\rightarrow$ **INVALID SIGNATURE**.
+Licenses follow a deterministic JSON format (schema version 1):
+
+```json
+{
+  "schema_version": 1,
+  "license_id": "LG-2026-00124",
+  "publisher_id": "PUB-001",
+  "key_id": "KEY-PUB01-2026",
+  "product_id": "PROD-001",
+  "customer_id": "CUST-001",
+  "customer_name": "Dr. Alan Turing",
+  "license_type": "professional",
+  "issued_at": "2026-11-01T10:00:00Z",
+  "not_before": "2026-11-01T10:00:00Z",
+  "expires_at": "2027-11-01T10:00:00Z",
+  "max_activations": 3,
+  "features": ["threat_intel", "real_time_shield", "deep_packet_inspection"]
+}
+```
+
+Mutable metadata (e.g. current activation count, device lists) is strictly excluded from the signed payload so the digital signature remains immutable.
 
 ---
 
-## 9. Limitations & Practical Countermeasures
-- **Replay Attacks**: Offline digital signatures cannot prevent copying a file to multiple machines. LicenseGuard mitigates this by pairing digital signatures with server-side activation records.
-- **Hardware Spoofing**: In software, device identifiers can theoretically be spoofed. Enterprise licensing systems use TPM (Trusted Platform Module) chips or cloud-based leasing tokens.
+## 5. Application Integrity Scanner
+
+LicenseGuard includes an **Application Integrity Scanner** that detects binary patching, modified libraries, and deleted files:
+- The publisher compiles release artifacts and signs a manifest (`release_manifest.json`) containing SHA-256 digests of all binaries, libraries, and assets.
+- On launch or scan, the client verifies the publisher's digital signature on the manifest, hashes files on disk, and detects:
+  - **Modified Executables**: `APPLICATION_INTEGRITY_FAILED` (e.g., cracked `.exe` files)
+  - **Missing Files**: `MISSING_FILE_DETECTED` (e.g., deleted security libraries)
+  - **Invalid Manifests**: `INVALID_MANIFEST_SIGNATURE`
 
 ---
 
-## 10. Running the Application
+## 6. Comprehensive 10-Scenario Security Testing Lab
 
-### Full-Stack Interactive Web Platform (Port 3000)
+The Security Testing Lab runs 10 automated test scenarios:
+
+| # | Scenario | Threat Concept | Expected Verdict |
+|---|---|---|---|
+| **1** | Genuine License Verification | Authenticity & Integrity Baseline | `VALID_LICENCE` |
+| **2** | Modified Customer Identity | Data Tampering & Hash Invalidation | `INVALID_SIGNATURE` |
+| **3** | Expiry Date Tampering | Privilege Escalation via Date Alteration | `INVALID_SIGNATURE` |
+| **4** | Feature Flag Tampering | Unauthorized Tier Elevation | `INVALID_SIGNATURE` |
+| **5** | Untrusted / Rogue Publisher Key | Publisher Identity Forgery | `UNTRUSTED_PUBLISHER_KEY` |
+| **6** | Valid Signature, Expired License | Temporal Expiry Enforcement | `LICENCE_EXPIRED` |
+| **7** | Valid Signature, Revoked License | Licence Revocation List (LRL) Check | `LICENCE_REVOKED` |
+| **8** | Activation Quota Exceeded | Multi-Device Seat Limiting | `ACTIVATION_QUOTA_EXCEEDED` |
+| **9** | Modified Application Executable | Application Integrity & Binary Patching | `APPLICATION_INTEGRITY_FAILED` |
+| **10** | Missing Application Library | Package Completeness & Missing Module | `MISSING_FILE_DETECTED` |
+
+---
+
+## 7. Dual Architecture: Web & Python Standalone
+
+1. **Modern Responsive Web Application (Port 3000)**:
+   - Full TypeScript + React SPA with Tailwind CSS.
+   - 14 dedicated management workspaces with mobile drawer navigation.
+   - Built on Node.js 22 OpenSSL 3.0 crypto engine executing real RSA-PSS operations.
+2. **Standalone Python Verification & Test Suite**:
+   - `crypto/hash.py`: RFC 8785 canonical serialization & SHA-256 hashing.
+   - `crypto/rsa_sign.py`: RSA keypair generation, export, and RSA-PSS sign/verify.
+   - `verify/verifier.py`: Python implementation of the Six-Stage Engine and Manifest Scanner.
+   - `tests/test_license.py`: Comprehensive test suite for all license scenarios.
+   - `tests/test_integrity.py`: Manifest signing and binary tampering detection tests.
+   - `app.py`: Standalone Flask API on port 5000.
+
+---
+
+## 8. Running the Application
+
+### Web Application
 ```bash
+# Start development server
 npm run dev
+# Server mounts at http://localhost:3000
 ```
-Visit `http://localhost:3000` to interact with the full dashboard, Security Testing Lab, and Digital Signature Visualizer.
 
-### Python Assignment CLI & Unit Tests
+### Standalone Python Suite
 ```bash
-# Run CLI
-python3 main.py
+# Install dependencies
+pip install -r requirements.txt
 
-# Run Unit Tests
+# Run Python unit tests
 python3 -m unittest discover tests
+
+# Launch Flask server
+python3 app.py
 ```
