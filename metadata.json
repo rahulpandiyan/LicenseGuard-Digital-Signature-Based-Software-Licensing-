@@ -1,0 +1,6 @@
+{
+  "name": "LicenseGuard – Digital Signature Software Licensing",
+  "description": "Enterprise-grade digital signature-based software licensing, tampering detection, and activation system using RSA-PSS and SHA-256 for VTU BCS703 Cryptography and Network Security.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

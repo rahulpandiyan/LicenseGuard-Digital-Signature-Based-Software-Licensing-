@@ -1,0 +1,199 @@
+{
+  "products": [
+    {
+      "id": "PRD-SENTINEL-PRO",
+      "name": "Sentinel Antivirus Enterprise",
+      "code": "SENTINEL-EP",
+      "version": "v4.2.0",
+      "category": "Cybersecurity & Endpoint Protection",
+      "description": "Next-gen heuristic malware defense with kernel telemetry for corporate workstations.",
+      "default_max_activations": 3,
+      "created_at": "2026-01-05T00:00:00.000Z"
+    },
+    {
+      "id": "PRD-DEVSTUDIO-ULT",
+      "name": "DevStudio IDE Ultimate",
+      "code": "DEVSTUDIO-ULT",
+      "version": "v2026.1",
+      "category": "Developer Tools & Compilers",
+      "description": "Unified cryptographic development suite with built-in disassembler and AST profiler.",
+      "default_max_activations": 2,
+      "created_at": "2026-01-06T00:00:00.000Z"
+    },
+    {
+      "id": "PRD-CLOUDSHIELD-GW",
+      "name": "CloudShield API Security Gateway",
+      "code": "CLOUDSHIELD-GW",
+      "version": "v3.1.4",
+      "category": "Network & Cloud Infrastructure",
+      "description": "Zero-trust mTLS proxy with deep packet inspection and automated token verification.",
+      "default_max_activations": 5,
+      "created_at": "2026-01-10T00:00:00.000Z"
+    }
+  ],
+  "publisher_keys": [
+    {
+      "key_id": "KEY-OFFICIAL-CA-V1",
+      "name": "LicenseGuard Official CA / Publisher v1.0",
+      "key_size": 2048,
+      "fingerprint": "7C:A7:60:0A:DB:5B:04:A5:A1:92:D9:82:18:20:14:77:27:D1:D7:3B:52:21:AD:CD:68:F8:8D:1C:BD:FD:EE:BF",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxOy9pDCBvKous3xL42Uo\nAb/GYtR6nwa15KjY0aPNKS8ZMRdmmXzThT1EVlVZuv9Rl+cCa+xOLfmy00/ALdM2\nR+TcwQyYUJhjT7+wxruGJOYXiWvfDswqZvN3Tr6Zg0c90ioV7wzn0O6trSh636qd\nz9iTGV74c9rSGgIbzYKsYQ/7dTeZ5EmWC9/ajlaf1MjnHPrzXF+NAbcWcP4vzA1r\nwhmkA5Pu194HMVTZgX1ZdRJYYE/BQZi8+NiHsFWYQGE00qerCZYawwDN7BqRDYdC\nSB/VSSFgHw6SOIYdQJwjO4CQN7tC95l44vB+Dt7dk3FJsisDp0JwJiwd5iPPd5Te\nFwIDAQAB\n-----END PUBLIC KEY-----\n",
+      "private_key_pem": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDE7L2kMIG8qi6z\nfEvjZSgBv8Zi1HqfBrXkqNjRo80pLxkxF2aZfNOFPURWVVm6/1GX5wJr7E4t+bLT\nT8At0zZH5NzBDJhQmGNPv7DGu4Yk5heJa98OzCpm83dOvpmDRz3SKhXvDOfQ7q2t\nKHrfqp3P2JMZXvhz2tIaAhvNgqxhD/t1N5nkSZYL39qOVp/UyOcc+vNcX40BtxZw\n/i/MDWvCGaQDk+7X3gcxVNmBfVl1ElhgT8FBmLz42IewVZhAYTTSp6sJlhrDAM3s\nGpENh0JIH9VJIWAfDpI4hh1AnCM7gJA3u0L3mXji8H4O3t2TcUmyKwOnQnAmLB3m\nI893lN4XAgMBAAECggEAXCH/IABp0qE0tFjlEIDVVOwqnzaWICz9kPvGZV7jr+8P\nND6kjA8wz1e4z0Ojda/att0n7uJiOXRnzCG14jq9XKmg9tkzshF59WfUB0bZHg5g\n2LSVadDvzbb/DOJz5E3CiL+T/4HkO4ZPz4Hu6xJiP0oumGIsj9fDENQHugD3MXl7\nKmCSIE76C1zvMxlpdHBqrK4L16N/wH7w9H+vxULuyAipXCHZPKINleRVMVUY1RiC\ntRgwbU/cYiyiX4t4QSq6u3U43GZRcglfcSvB+XhK4B0hJvfk+LgUccaB5FFKPyMk\n18z5xbTtwzFP23o9ygw9Zr4ULWgnhTCfGm054XqJYQKBgQD9IiU+138ADpiPFB3l\nTTa5SDi9fjoVvht8K03CVpKdjtZH1nLu5OjmIFuBXW7ddENkk8p8KWn2z0tqAxlZ\nMQ887fHxXYlIO5AzcGcmy5yffspw4rHJEvtyV6y9a+/CnjHzw4SFnabNsxGpxqr8\ndSZYF1bHOBv3rlV34x6S2SrsjwKBgQDHJ6RTupOyLE8jZsegjGXaTC2XlpVZTr1e\n9wTElQiOWuA6WxbE4i6JJYe4gkg1axTJK/XAv64M3Lbfn+2dv/7cvZYc6Z+ItBE6\nTA0GU0OEedEU8wakc2CtjAfyyN/i+UTkmVXeX+uGu9vugiC7j8pFp8H+dGyUG+4w\nw9kzeqBJ+QKBgDWeV/lZuEMQ1GvqPPLnSiIxFCO/axpT7Ip+ubfikqfhK66H1Eya\nHGMyk29xlRw/lk7lp0xpkVKAUl8gTOxBohKr7EXOJFgylbbvpknnc0OtncAPpM0M\nwkpUG/j7tgupardRwO50mHKV7bXiqTFUt0yNlQoZ7oKmYOBGMaG1cowtAoGAd2IG\nGcMAgpAZKImWJWHENKXxtqsoAA85adH947HLHTrQq2qrLX7AkqoSv8Ipcwwru6RE\nfzToKwGsBkWidSwApWZotBA/9/ypTx8Dt8T19lXnxf0hADfBvobwxNMxkqgGalqY\npOMvFudKIaGT6Zt6j2LO4a/83pQXptfgPgHGUFECgYEAx2lP2VriWSqHRQaK9r70\nZWuR1lAosCx6UeTPt7ncHyKEr9bEdr8PuiJUToA0c5axFRHNHML+ICzOSWozipkR\n6MizBa/+lY6ZCe+85t1g+ywL1gG9mQsMSYjQP6Xsn+zGCWVfxn9xRQaasceDZUy4\nM2b6HTdE4wj+gGr3MXCHLd4=\n-----END PRIVATE KEY-----\n",
+      "is_trusted": true,
+      "is_active": true,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "key_id": "KEY-ROGUE-ATTACKER-V1",
+      "name": "Untrusted Rogue Corp CA (Untrusted Attacker)",
+      "key_size": 2048,
+      "fingerprint": "B6:43:61:21:65:A7:53:F4:48:7E:C5:27:75:68:55:7C:27:AE:05:CE:D4:72:E2:28:58:A7:01:A3:27:AC:20:21",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoNTCiLiV32SaJA3iGKzi\n4QPKFizJf1kLb93Nqc/JUjhTURdaQDOYC/bJm3Xvn3pShH7lfaCkkQ5a+jRjllWH\neZAfA8nDI/HKVkOcoz8hpqx/ua0ERkJWrqg3Tstlghvnw8927uWd5olAOpl8BSQO\n2DV89Yp4Ihi8LpM61XJzCLbAIGkPZJ2aqqhZRBeqSMjxGS1bt0PZEi0rRudhDwF3\nZL9zWYAKMqQsCtWAO2wRWzi6zguzlHPtnRRNXwXKHaOkn4jHqZkYP7sfZXqGX5Lv\nJ0/ckkv1su6lxpI3T4o5JUPLLVjPjAfCoGdvct2Brrwh+dN1oIcVdKCF5XDZQ5GH\nrwIDAQAB\n-----END PUBLIC KEY-----\n",
+      "private_key_pem": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCg1MKIuJXfZJok\nDeIYrOLhA8oWLMl/WQtv3c2pz8lSOFNRF1pAM5gL9smbde+felKEfuV9oKSRDlr6\nNGOWVYd5kB8DycMj8cpWQ5yjPyGmrH+5rQRGQlauqDdOy2WCG+fDz3bu5Z3miUA6\nmXwFJA7YNXz1ingiGLwukzrVcnMItsAgaQ9knZqqqFlEF6pIyPEZLVu3Q9kSLStG\n52EPAXdkv3NZgAoypCwK1YA7bBFbOLrOC7OUc+2dFE1fBcodo6SfiMepmRg/ux9l\neoZfku8nT9ySS/Wy7qXGkjdPijklQ8stWM+MB8KgZ29y3YGuvCH503WghxV0oIXl\ncNlDkYevAgMBAAECggEADSjQxgO8bOvmr36HT8I4SiBXlQWTHcgOZy0nL8wgSomb\nSkOhOdGUO55faUihaP4cPwUXB/bF9ax5WzGVgxklHZg3lsVtIcVzQH2walcMYikz\nxjXW51zJij7vT5OAOcDIxOfLxnOj6NdgGatcpMW02pH90yVs+5/kfeHEFZo+DqoB\nXz23bIv9kQiKjUxbv24jqSOo2cIlAD17eEEVGXr3InlapvGxsVuXnH27SoOPhxBt\ngTaUu/GkTi5jNfhROisEqw7A+2FuhTUa6kIqgQqqaRP7JsdghDOlbM4GJbRd8AGp\nMimfovtjmL7seEDJm2pMn4I8q6Kj2jK+i74ugkQJCQKBgQDa757oi/4YHuiRqQ80\nbB0dA4forgpqLMqHo0tKXtfO0QKAf6GTlCCORhGR7qB/tvbCBAOCcSs3xJTDaANQ\n1NBKoYL54jBKFqJdKNRTGhJogkx54Pxg645WnJhKKDAKl/tKr00tbn4To/T5+P+w\nB0wXJlEXeHag9rbN7jWAfN5A0wKBgQC8DvQRYdtjDU+8ogoMrx3HzU3k2Fq0Lksu\nQgy5I0cVwR2qKPVVGlrlKxq7uy2YCnTFtUrrbXyLZaIuBASAU67KSj50MhLUXjvX\nk09jQbDNP7yz7SsDim+OZgMkf3DLyn1bV8Qo13xJ4aPP63Xg/CZIEgYnlFMgB+bq\nBa2oOgf0NQKBgGnIFz6CzV14KaSfS5JnnlVzbEpXNP8B70VD98/SLXFm+U9+22HD\n00sKvdiFtJSgoW8yo0N2TIxgdgRIEDoQ6Sb2DKORzwUtFHvwi04vra9DLZJBy49E\noPxmIwrJihTERA1cz+xgk5gHwwi4b0ns7K3OvKWbda3mJoMvUjhnnLczAoGAUiDB\nrDmtQvPUR9AITYPIoLJjezaVXiz9fkUwI0Zpy/FbkC10/uaUnZKWiTf0cHrYhmNn\nRau6AXKwQiJVCOoC4qtL3RjlKkPBJKNbv0A4A1r7gSRpbZFuqKSaaL0TOJzE5DhP\nHXsF94oILUxqXYgg+8aLU4uuRcXNrZQvQ9GcGaUCgYEA0PqJFwZNIoZmHv1QqYns\nWDBp0Q/bWVL+J1qLkNhLTbUFrFM5rQq1z3Yvx8fF/GvnmOhpvsN0pqERchJ2t4dc\nmgq0wz7J3o+/P8wjQcYpaHOSKuEmMSinEFRGnAmexe6Z03CJ/3gYL6JJ7+kFxSEl\n/O/jOFbO9dpKXrxzlj+0ElM=\n-----END PRIVATE KEY-----\n",
+      "is_trusted": false,
+      "is_active": true,
+      "created_at": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "licenses": [
+    {
+      "schema_version": "1.0.0",
+      "license_payload": {
+        "license_id": "LIC-2026-9810A",
+        "customer_name": "Dr. Alan Turing",
+        "customer_email": "alan.turing@cambridge.ac.uk",
+        "product_id": "PRD-SENTINEL-PRO",
+        "product_name": "Sentinel Antivirus Enterprise",
+        "license_type": "Yearly",
+        "issue_date": "2026-02-01T00:00:00Z",
+        "expiry_date": "2027-02-01T00:00:00Z",
+        "max_activations": 3,
+        "publisher_id": "LicenseGuard Official CA / Publisher v1.0",
+        "key_id": "KEY-OFFICIAL-CA-V1",
+        "license_status": "ACTIVE"
+      },
+      "sha256_digest": "95a3d70bd7b37cb754ec71dddf0adbc2a8ace86b5d048496c0ea5a70b69f5288",
+      "signature_b64": "QqdfN8c/zd9aCSXaBf3jdE7clp00AW8zLEpp5G+fyGF6ooteH2tQ+QsytsGYEOEDq6tRG/duoqJvPDacCzEfntvKYfTFL4rqHKUuaGS0Z64yGn8PCl/PcpADen0BgNSVf5Vh+blPlUyQujZLUfP4+KG42ECWVfZl1+RVYhy6q0oMCwiUxdFpTKCG4QetNzYTjpxlccL5Ti0AE6ph2eRV6aqOf9TmJRdaB9/Awlju5sE2QbifRPG/tYn5FKvzFNx2EBL81rL6iArJ1Ag81icI1zT9LiHWqXaaKKBZX6EVB3e1Y6EyTpXFEukcpRYjYS2gJuUIZL1yEGcDRzcT+jg6ww==",
+      "key_id": "KEY-OFFICIAL-CA-V1",
+      "publisher_fingerprint": "7C:A7:60:0A:DB:5B:04:A5:A1:92:D9:82:18:20:14:77:27:D1:D7:3B:52:21:AD:CD:68:F8:8D:1C:BD:FD:EE:BF",
+      "formatted_license_key": "LG-LIC2-0269-810A-95A3",
+      "current_activations": 1,
+      "created_at": "2026-02-01T00:00:00Z"
+    },
+    {
+      "schema_version": "1.0.0",
+      "license_payload": {
+        "license_id": "LIC-2026-4421B",
+        "customer_name": "Ada Lovelace",
+        "customer_email": "ada.lovelace@analytics.org",
+        "product_id": "PRD-DEVSTUDIO-ULT",
+        "product_name": "DevStudio IDE Ultimate",
+        "license_type": "Lifetime",
+        "issue_date": "2026-01-15T00:00:00Z",
+        "expiry_date": "LIFETIME",
+        "max_activations": 2,
+        "publisher_id": "LicenseGuard Official CA / Publisher v1.0",
+        "key_id": "KEY-OFFICIAL-CA-V1",
+        "license_status": "ACTIVE"
+      },
+      "sha256_digest": "66ccc69aba83d84d916387996a5fac750ce1ac26a758b43e7ac72e176d262326",
+      "signature_b64": "Y4ObeyAswd6yX8nrXY6d7QWAS4YSe845dnBj6JqGzoWEfQpin5ACvNuqUA1s9IDVgfT9uJ0pgSEunYH7l5AAZ66uDQ460PT4UNbjSuOLOEmiuucmILH8E+sHS8ksewgJXMVrJXNZ3GZN8RvCvg7PR4vUjz6vpDaIgR0keXURBox2aJiDsCaPm/DLbSssxs/44WB0zrqaiH8giCsb6tWK3yvwZxaVn3WZt0n6SnzNA05q3hSdspeRsybQFbbCNLKkXWbbMq24Qg1ZqAX9xVnvn3NXBZi/czgsCAAdN6eh+1I+XYe/8U3aSCBkK+TboImx2N/Aj5lYPQF/xLCgb/0ysw==",
+      "key_id": "KEY-OFFICIAL-CA-V1",
+      "publisher_fingerprint": "7C:A7:60:0A:DB:5B:04:A5:A1:92:D9:82:18:20:14:77:27:D1:D7:3B:52:21:AD:CD:68:F8:8D:1C:BD:FD:EE:BF",
+      "formatted_license_key": "LG-LIC2-0264-421B-66CC",
+      "current_activations": 0,
+      "created_at": "2026-01-15T00:00:00Z"
+    },
+    {
+      "schema_version": "1.0.0",
+      "license_payload": {
+        "license_id": "LIC-2025-1109E",
+        "customer_name": "Rear Admiral Grace Hopper",
+        "customer_email": "grace.hopper@navy.mil",
+        "product_id": "PRD-SENTINEL-PRO",
+        "product_name": "Sentinel Antivirus Enterprise",
+        "license_type": "Monthly",
+        "issue_date": "2025-08-01T00:00:00Z",
+        "expiry_date": "2025-09-01T00:00:00Z",
+        "max_activations": 1,
+        "publisher_id": "LicenseGuard Official CA / Publisher v1.0",
+        "key_id": "KEY-OFFICIAL-CA-V1",
+        "license_status": "ACTIVE"
+      },
+      "sha256_digest": "9fece2facb9229ab7f59deb68a46d7befc1be2180bb2de265afd9b1bcdf592dc",
+      "signature_b64": "uKK5PvXjJNAQrXGQKVH14el2sxB8HzIWtuQJnJPvDD90qQeiZMC4optrK0s3CnnRWraBUGi1qEZFjZovPKsuGEjjSglbS6OIKXMk3SuHC/1qQKKGk1dhGKNOzq/CxV7B0BU5l8M0Xp6L0XuUHnpGPPZkSjlbTmoZRAyvuJsi+1MCO3ojJMGjsxrO7DV03PpAj26a94x1oxjkPIPschL1bi9zzTjySIq2VqzsyPMlqhir0uTf+Z1JssgTSn1Of7eaTD5cusrIWJT+PSWvbuxkmT15o3QcDxZruGRCozrgjb0A15RhIdijoqbGgFFpitU2Iu1pi3b8eAnvmk1XyR+TYw==",
+      "key_id": "KEY-OFFICIAL-CA-V1",
+      "publisher_fingerprint": "7C:A7:60:0A:DB:5B:04:A5:A1:92:D9:82:18:20:14:77:27:D1:D7:3B:52:21:AD:CD:68:F8:8D:1C:BD:FD:EE:BF",
+      "formatted_license_key": "LG-LIC2-0251-109E-9FEC",
+      "current_activations": 0,
+      "created_at": "2025-08-01T00:00:00Z"
+    },
+    {
+      "schema_version": "1.0.0",
+      "license_payload": {
+        "license_id": "LIC-2026-7733R",
+        "customer_name": "Kevin Mitnick",
+        "customer_email": "kevin.m@security-research.org",
+        "product_id": "PRD-CLOUDSHIELD-GW",
+        "product_name": "CloudShield API Security Gateway",
+        "license_type": "Yearly",
+        "issue_date": "2026-01-20T00:00:00Z",
+        "expiry_date": "2027-01-20T00:00:00Z",
+        "max_activations": 5,
+        "publisher_id": "LicenseGuard Official CA / Publisher v1.0",
+        "key_id": "KEY-OFFICIAL-CA-V1",
+        "license_status": "REVOKED"
+      },
+      "sha256_digest": "527dba8362d22010f702e3edff260146792a0d8dedf8ef8edcc36d27c5d5e169",
+      "signature_b64": "IlGC//bgctgdWvmHlYAv2BYnbiSHCi4aBu1OCsri6f/NPei5JJAs6Ywqz8Gb1gRo+FPIKWIJlP90zLo4k4tdYVmkkwSshjh2uRT1dnUPx2E0jdSHzibdhsDbnVxLWOZhHoQZWHLIl6Q4nVAPg91SfEdljJ0hKHd+LmJSeWlIbkyML0y9mULlJQdtG9wecINm9zoVTA/QGIMpcDOoV1CgP+UalP5iiRfl5QW/jsoje/1F3OXVnuxofI3edT+ZhTBVjfN0VIma9rTcMvSeHilCMwuUR43BcmOIUKPqrBvixPcsUoD3EDYs41Rwg7459w8Wo6+G1sUkxEAH4jjeN1w89g==",
+      "key_id": "KEY-OFFICIAL-CA-V1",
+      "publisher_fingerprint": "7C:A7:60:0A:DB:5B:04:A5:A1:92:D9:82:18:20:14:77:27:D1:D7:3B:52:21:AD:CD:68:F8:8D:1C:BD:FD:EE:BF",
+      "formatted_license_key": "LG-LIC2-0267-733R-527D",
+      "current_activations": 0,
+      "created_at": "2026-01-20T00:00:00Z",
+      "revocation": {
+        "revoked_at": "2026-11-01T14:48:41.364Z",
+        "reason": "Suspected key leakage on unauthorized darknet market"
+      }
+    }
+  ],
+  "activations": [
+    {
+      "id": "ACT-9810-WIN11-01",
+      "license_id": "LIC-2026-9810A",
+      "device_id": "DEV-WIN11-WORKSTATION",
+      "device_name": "Workstation-Win11-Pro",
+      "os": "Windows 11 Enterprise 23H2 (x86_64)",
+      "hardware_hash": "HW-7A9B-4C1E-92D0-AA14",
+      "ip_address": "192.168.1.104",
+      "activated_at": "2026-02-02T10:14:00.000Z",
+      "status": "ACTIVE"
+    }
+  ],
+  "verification_history": [
+    {
+      "id": "VER-MVXY3Q85",
+      "timestamp": "2026-11-01T14:48:47.237Z",
+      "license_id": "LAB-TAMPER-7235",
+      "product_name": "Sentinel Antivirus Enterprise",
+      "customer_name": "Attacker Impersonator Corp (Tampered)",
+      "device_id": "DEV-WIN11-WORKSTATION",
+      "verdict": "INVALID SIGNATURE",
+      "signature_valid": false,
+      "sha256_digest": "323b9e2d65958916420b42ed0aaee2f0d39db98cf1f73e41b5f9078f87513f0e",
+      "details": "RSA-PSS verification failed. Data was tampered or verified with the wrong public key."
+    },
+    {
+      "id": "LOG-VER-001",
+      "timestamp": "2026-02-02T10:13:58.000Z",
+      "license_id": "LIC-2026-9810A",
+      "product_name": "Sentinel Antivirus Enterprise",
+      "customer_name": "Dr. Alan Turing",
+      "device_id": "DEV-WIN11-WORKSTATION",
+      "verdict": "VALID LICENCE",
+      "signature_valid": true,
+      "sha256_digest": "95a3d70bd7b37cb754ec71dddf0adbc2a8ace86b5d048496c0ea5a70b69f5288",
+      "details": "Initial genuine activation on Workstation-Win11-Pro. RSA-PSS SHA-256 integrity passed."
+    }
+  ]
+}
